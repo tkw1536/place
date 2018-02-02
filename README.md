@@ -22,6 +22,12 @@ docker run -p 80:80 -v /data -v /var/www/html -e GIT_URL=git@github.com:example/
 4. Add a webhook, to receive push events under https://domain.tld/webhook. Think of a random secret to use, e.g. "awesomesecret"
 5. Done, your repository will now be magically updated
 
+## For debugging
+
+```
+docker run -p 80:80 -v /data -v /var/www/html -t -i -e GIT_URL=... -e DEBUG=1 place/place
+```
+
 ### bin/place
 The main place executable, which serves as the entry point for the container. It reads in all parsed parameters, generates an ssh key if it does not exist, and then delegates to `bin/place-server` (see below). 
 
