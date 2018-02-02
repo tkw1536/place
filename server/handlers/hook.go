@@ -31,7 +31,7 @@ func (hh HookHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		if err := c.Check(req); err != nil {
 			hh.cfg.Logger.Printf("%s checker failed: %s\n", name, err.Error())
 		} else {
-			hh.cfg.Logger.Printf("%s checker succeeded: %s\n", name, err.Error())
+			hh.cfg.Logger.Printf("%s checker succeeded\n", name)
 			fmt.Fprintf(res, "Success\n")
 			go hh.runHook()
 			return

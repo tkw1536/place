@@ -48,6 +48,9 @@ func (cfg *Config) Parse(args []string) error {
 		return fmt.Errorf("unable to parse --script: %s", err.Error())
 	}
 
+	// configure a list of checkers
+	cfg.Checkers = []checkers.Checker{}
+
 	// load all the checkers
 	if gitHubChecker != "" {
 		cfg.Checkers = append(cfg.Checkers, checkers.CreateChecker("github", gitHubChecker))
@@ -63,9 +66,6 @@ func (cfg *Config) Parse(args []string) error {
 
 	// turn timeout into a duration
 	cfg.ScriptTimeout = time.Duration(timeout) * time.Second
-
-	// configure a list of checkers
-	cfg.Checkers = []checkers.Checker{}
 
 	// parse proxyURL
 	if proxyURL != "" {
