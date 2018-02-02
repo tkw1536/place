@@ -1,9 +1,11 @@
 package sshkey
 
+// this file contains test utility functions
+// used by other files in the testing code
+
 import (
 	"io"
 	"io/ioutil"
-	"os"
 	"strings"
 	"testing"
 )
@@ -37,7 +39,8 @@ zdQNhE8CgYADJaanTCNuiJIDfVw0xX4ZqXp2KvsUtVjWA8/zkRn28zHL1BriCAMK
 yedEvZTFvMsPuv7thctGKW6vR9QyXAb6OOdS/VWs+8BiYoGBLgmhqkxXWxV1Po6e
 jFrM5R1za30zIhO+77tBZi2mWdeKSn6NqvesGrfXBs8BKkIUH/0uqA==
 -----END RSA PRIVATE KEY-----`
-	sshKeyWithPassPhrase = `-----BEGIN RSA PRIVATE KEY-----
+	sshKeyWithoutPassPhrasePublic = `ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOBpS6ERyWNUFZ/aqAYW/26VRJoQ1Sk4QArEBGV+twlTgZGgB29PCKmBFpgLTaPxSbNtdJjIq+P4vbwJT+4oFhY/AcgftOdzEUTmQo3EzFca2/vdch8phApf/Zjpx/gQe615iGc1aK7t+TQl276hj30fxU75qokbQUfzcJSuo5wfiauD6z1XoSLSowqiMWY3oPeYMEOeZYNwkcXB3ZILQ7/BC7jkywraPXcW52wgz5ZuQe+lG6DcsU55ul9jp9drQa5wlsHmZmkYbmWB/Jy43oA9BFPxJTxIGVR+NfgxAso3w2qxxGnfmdUxEpCMdLgoR/IL8yuh5uWdlhR7GZXwzJ`
+	sshKeyWithPassPhrase          = `-----BEGIN RSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
 DEK-Info: AES-128-CBC,7C6DBCBC7154D4962B02F3260DAB7263
 
@@ -67,6 +70,7 @@ hLvQl0ODSlJozqbffHtUHYYNC4/ULtIPyFlRHEGANBdx7vlR6n0d/GLSOMnHg5Mc
 gxk9aAnLuZoLd17/CqEqS/UX0zNnFEz+ep7vHplqCV7EwJWsLDsVV11fLpmwpsC0
 nq5a3FIHcM+jpmTx1Vl8qEx+HUG9MBbpeVq98q5C83TpXzBAhRvJhh1zuoIiJMxK
 -----END RSA PRIVATE KEY-----`
+	sshKeyWithPassPhrasePublic = `ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCeNmzBMUXXGbeR1H1M/kwNA/tFYK1C2HckcbdoHstqm8rR6X4AAps1cgSxFcYdkvulqJHkIACJj1KTLy2NfI02/1ukht7QrYMPEg9QKzkmwQABH3DpwhjL7N9U9vZ6xNhYZrOuQrLxDMotLmsppV5HsprJWNgLjBsGqOtx/rcHFaQ8xg4g60Oykrb43hfgmkQEp3zEjErid6s2fJJ7sGQgrhMNkxy6UWPH5gGq2+IENmiV6yPP0k3wJqj3Ds+2XhJLLd5AN32tYBMtkOl+yKhWlt2IsVHuDEcJgyJt3Lr3Ptp+YByPqXL7i3Ka3KtzJaZlvrelRDhLTx3xymy3NKNX`
 )
 
 func setupTestFile(content string, t *testing.T) string {
@@ -86,42 +90,3 @@ func setupTestFile(content string, t *testing.T) string {
 
 	return fName
 }
-
-func TestSSHKeyValid(t *testing.T) {
-
-	// setup a test file
-	fName := setupTestFile(sshKeyWithoutPassPhrase, t)
-	if fName == "" {
-		return
-	}
-
-	defer os.Remove(fName)
-
-	// key should be able to load
-	key, err := Get(fName)
-	if err != nil {
-		t.Errorf("Get() failed unexpectedly: %s", err.Error())
-	}
-
-	if key == nil {
-		t.Errorf("Get() failed to load key (it is nil)")
-	}
-}
-
-func TestSSHKeyInvalidPassphrase(t *testing.T) {
-
-	// setup a test file
-	fName := setupTestFile(sshKeyWithPassPhrase, t)
-	if fName == "" {
-		return
-	}
-	defer os.Remove(fName)
-
-	// key should not be able to load
-	_, err := Get(fName)
-	if err == nil {
-		t.Errorf("Get() should have failed, but didn't")
-	}
-}
-
-// TODO: Test reading a s non-existent ssh key (expected failure)

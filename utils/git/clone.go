@@ -1,14 +1,14 @@
-package updater
+package git
 
 import (
-	"../utils/sshkey"
+	"../sshkey"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
-// clone a repository to a local path
-// using an optional ssh key for authentication
-func cloneRepo(path string, repository string, ref string, bare bool, keyPath string) (*git.Repository, error) {
+// Clone clones a repository to a local path
+// using a given ref and optionally a given ssh key
+func Clone(path string, repository string, ref string, bare bool, keyPath string) (*git.Repository, error) {
 
 	var options git.CloneOptions
 	options.URL = repository

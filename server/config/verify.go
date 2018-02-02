@@ -9,7 +9,7 @@ import (
 )
 
 // verifies the configuration settings
-func verifyConfig(cfg *Config) error {
+func (cfg Config) verify() error {
 	if err := verifyAddress(cfg.BindAddress); err != nil {
 		return err
 	}

@@ -14,7 +14,7 @@ var cfg config.Config
 func main() {
 	// read the configuration
 	config.ParseConfigOrPanic(&cfg, os.Args[1:])
-	config.InspectConfig(&cfg)
+	cfg.Inspect()
 
 	// and start the server
 	if err := updater.RunUpdate(&cfg); err != nil {

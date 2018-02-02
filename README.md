@@ -6,12 +6,9 @@ A lightweight docker image that allows you to place your static website on the i
 
 ## TODO
 
-* TODO: `bin/place` argument passing
-* TODO: Dockerfile argument testing
+* TODO: Proper testing updates
+* TODO: More testing
 * TODO: tl;dr documentation
-* TODO: `bin/place-server` testing
-* TODO: `bin/place testing`
-* TODO: Rewrite tests in go
 
 ## TL;DR
 

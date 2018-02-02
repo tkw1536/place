@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/exec"
 
+	"../utils/git"
+
 	"./config"
 )
 
@@ -20,7 +22,7 @@ func updateWithScript(cfg *config.Config) error {
 	cfg.Logger.Printf("cloning %s into %s", cfg.RepositoryURL, tmpDir)
 
 	// clone into it
-	if _, err := cloneRepo(tmpDir, cfg.RepositoryURL, cfg.Ref, false, cfg.SSHKeyPath); err != nil {
+	if _, err := git.Clone(tmpDir, cfg.RepositoryURL, cfg.Ref, false, cfg.SSHKeyPath); err != nil {
 		return err
 	}
 

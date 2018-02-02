@@ -12,8 +12,8 @@ import (
 	"../checkers"
 )
 
-// ParseConfig parses configuration from the command line
-func ParseConfig(cfg *Config, args []string) error {
+// Parse parses configuration from command line options
+func (cfg Config) Parse(args []string) error {
 	cfg.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 	flag.StringVar(&cfg.BindAddress, "bind", "", "address to bind to")
@@ -76,13 +76,12 @@ func ParseConfig(cfg *Config, args []string) error {
 		cfg.ProxyURL = u
 	}
 
-	return verifyConfig(cfg)
+	return cfg.verify()
 }
 
-// ParseConfigOrPanic parses and returns configuration or panics
-func ParseConfigOrPanic(cfg *Config, args []string) {
-	err := ParseConfig(cfg, args)
-	if err != nil {
+// ParseOrPanic parses the configuration or panics
+func (cfg Config) ParseOrPanic(args []string) {
+	if err := cfg.Parse(args); err != nil {
 		panic(err.Error())
 	}
 }

@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"os"
 
+	gitu "../utils/git"
+
 	"./config"
 	"gopkg.in/src-d/go-billy.v4/osfs"
 	git "gopkg.in/src-d/go-git.v4"
@@ -22,7 +24,7 @@ func updateWithGit(cfg *config.Config) error {
 	cfg.Logger.Printf("cloning %s into %s", cfg.RepositoryURL, tmpDir)
 
 	// do a bare clone into it
-	r, err := cloneRepo(tmpDir, cfg.RepositoryURL, cfg.Ref, true, cfg.SSHKeyPath)
+	r, err := gitu.Clone(tmpDir, cfg.RepositoryURL, cfg.Ref, true, cfg.SSHKeyPath)
 	if err != nil {
 		return err
 	}

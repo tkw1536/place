@@ -15,8 +15,8 @@ type Config struct {
 	Logger *log.Logger
 }
 
-// InspectConfig prints information about the configuration
-func InspectConfig(cfg *Config) {
+// Inspect prints information about the configuration
+func (cfg Config) Inspect() {
 	cfg.Logger.Printf("RepositoryURL: %s\n", cfg.RepositoryURL)
 	cfg.Logger.Printf("SSHKeyPath:    %s\n", cfg.SSHKeyPath)
 	cfg.Logger.Printf("OutDirectory:  %s\n", cfg.OutDirectory)

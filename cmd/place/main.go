@@ -8,8 +8,8 @@ var cfg config.Config
 
 func main() {
 	// read the configuration
-	config.ParseConfigOrPanic(&cfg)
-	config.InspectConfig(&cfg)
+	cfg.ParseOrPanic()
+	cfg.Inspect()
 
 	// and we are going to place stuff now
 	place.StartPlace(&cfg)

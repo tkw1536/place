@@ -1,6 +1,10 @@
 package config
 
-import "log"
+import (
+	"log"
+	"net/url"
+	"time"
+)
 
 // Config specifies the configuration used by place
 type Config struct {
@@ -9,25 +13,25 @@ type Config struct {
 	WebhookPath     string
 	GitURL          string
 	GitBranch       string
-	GitCloneTimeout string
+	GitCloneTimeout time.Duration
 	GitHubSecret    string
 	GitLabSecret    string
 	Debug           bool
 	StaticPath      string
 	BuildScript     string
-	ProxyURL        string
+	ProxyURL        *url.URL
 
 	Logger *log.Logger
 }
 
-// InspectConfig prints information about the configuration
-func InspectConfig(cfg *Config) {
+// Inspect inspects the configuration
+func (cfg Config) Inspect() {
 	cfg.Logger.Printf("SSHKeyPath:      %s\n", cfg.SSHKeyPath)
 	cfg.Logger.Printf("BindAddress:     %s\n", cfg.BindAddress)
 	cfg.Logger.Printf("WebhookPath:     %s\n", cfg.WebhookPath)
 	cfg.Logger.Printf("GitBranch:       %s\n", cfg.GitBranch)
 	cfg.Logger.Printf("GitURL:          %s\n", cfg.GitURL)
-	cfg.Logger.Printf("GitCloneTimeout: %s\n", cfg.GitCloneTimeout)
+	cfg.Logger.Printf("GitCloneTimeout: %d\n", cfg.GitCloneTimeout/1000)
 	cfg.Logger.Printf("GitHubSecret:    %s\n", cfg.GitHubSecret)
 	cfg.Logger.Printf("GitLabSecret:    %s\n", cfg.GitLabSecret)
 	cfg.Logger.Printf("Debug:           %t\n", cfg.Debug)

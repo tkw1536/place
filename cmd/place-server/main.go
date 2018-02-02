@@ -13,8 +13,8 @@ var cfg config.Config
 
 func main() {
 	// read the configuration
-	config.ParseConfigOrPanic(&cfg, os.Args[1:])
-	config.InspectConfig(&cfg)
+	cfg.ParseOrPanic(os.Args[1:])
+	cfg.Inspect()
 
 	// and start the server
 	server.StartServer(&cfg)

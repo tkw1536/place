@@ -25,8 +25,8 @@ type Config struct {
 	Logger *log.Logger
 }
 
-// print some informational text about the configuration to the Logger
-func InspectConfig(cfg *Config) {
+// Inspect prints some configuration information to the logger
+func (cfg *Config) Inspect() {
 	cfg.Logger.Printf("BindAddress: %s\n", cfg.BindAddress)
 	cfg.Logger.Printf("HookPath:    %s\n", cfg.HookPath)
 
