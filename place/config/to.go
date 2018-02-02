@@ -14,20 +14,18 @@ func (cfg Config) ToServerConfig() serverconfig.Config {
 	c.BindAddress = cfg.BindAddress
 	c.HookPath = cfg.WebhookPath
 
-	var chks []checkers.Checker
+	// load all the checkers
+	chks := make([]checkers.Checker, 0)
 	if cfg.GitHubSecret != "" {
-		// load all the checkers
-		if cfg.GitHubSecret != "" {
-			chks = append(chks, checkers.CreateChecker("github", cfg.GitHubSecret))
-		}
+		chks = append(chks, checkers.CreateChecker("github", cfg.GitHubSecret+":refs/heads/"+cfg.GitBranch))
+	}
 
-		if cfg.GitLabSecret != "" {
-			chks = append(chks, checkers.CreateChecker("gitlab", cfg.GitLabSecret))
-		}
+	if cfg.GitLabSecret != "" {
+		chks = append(chks, checkers.CreateChecker("gitlab", cfg.GitLabSecret+":refs/heads/"+cfg.GitBranch))
+	}
 
-		if cfg.Debug {
-			chks = append(chks, checkers.CreateChecker("debug", ""))
-		}
+	if cfg.Debug {
+		chks = append(chks, checkers.CreateChecker("debug", ""))
 	}
 	c.Checkers = chks
 

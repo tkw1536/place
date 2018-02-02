@@ -8,20 +8,19 @@ A lightweight docker image that allows you to place your static website on the i
 
 * TODO: Proper testing updates
 * TODO: More testing
-* TODO: tl;dr documentation
 
 ## TL;DR
 
-1. Create a repository, e.g. `https://github.com/user/domain.tld`, and setup `domain.tld` DNS to point to your docker instance. 
-2. Start this docker container
+1. Create a repository, e.g. https://github.com/example/domain.tld
+2. Start this docker container: 
 
 ```
-docker run -p 80:80 -v /data -v /var/www/html -e place/place
+docker run -p 80:80 -v /data -v /var/www/html -e GIT_URL=git@github.com:example/domain.tld.git -e GITHUB_SECRET=awesomesecret place/place 
 ```
 
 3. Add the generated ssh public key as a deploy key to your repository.
-4. Create a GitHub webhook to point to "https://domain.tld/hook/" and add the token `super-secret-token`
-5. Push to your repository, and the deployment will magically be updated
+4. Add a webhook, to receive push events under https://domain.tld/webhook. Think of a random secret to use, e.g. "awesomesecret"
+5. Done, your repository will now be magically updated
 
 ### bin/place
 The main place executable, which serves as the entry point for the container. It reads in all parsed parameters, generates an ssh key if it does not exist, and then delegates to `bin/place-server` (see below). 

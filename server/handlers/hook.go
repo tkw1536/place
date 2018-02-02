@@ -18,7 +18,11 @@ type HookHandler struct {
 // NewHookHandler creates a new HookHandler
 func NewHookHandler(cfg *config.Config) HookHandler {
 	var lock sync.Mutex
-	return HookHandler{&lock, cfg}
+
+	var handler HookHandler
+	handler.lock = &lock
+	handler.cfg = cfg
+	return handler
 }
 
 func (hh HookHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {

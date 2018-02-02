@@ -13,7 +13,7 @@ import (
 )
 
 // Parse parses configuration from command line options
-func (cfg Config) Parse(args []string) error {
+func (cfg *Config) Parse(args []string) error {
 	cfg.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 	flag.StringVar(&cfg.BindAddress, "bind", "", "address to bind to")
@@ -80,7 +80,7 @@ func (cfg Config) Parse(args []string) error {
 }
 
 // ParseOrPanic parses the configuration or panics
-func (cfg Config) ParseOrPanic(args []string) {
+func (cfg *Config) ParseOrPanic(args []string) {
 	if err := cfg.Parse(args); err != nil {
 		panic(err.Error())
 	}

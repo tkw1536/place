@@ -9,7 +9,7 @@ import (
 )
 
 // Parse parses the configuration from the environment
-func (cfg Config) Parse() error {
+func (cfg *Config) Parse() error {
 	cfg.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 	cfg.SSHKeyPath = os.Getenv("SSH_KEY_PATH")
@@ -45,7 +45,7 @@ func (cfg Config) Parse() error {
 }
 
 // ParseOrPanic parses the configuration or panics
-func (cfg Config) ParseOrPanic() {
+func (cfg *Config) ParseOrPanic() {
 	if err := cfg.Parse(); err != nil {
 		panic(err.Error())
 	}

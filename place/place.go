@@ -16,7 +16,9 @@ func StartPlace(cfg *config.Config) error {
 		}
 	}
 
+	cfg.Logger.Println("Done initializing, starting up server ...")
 	// turn this configuration into a server configuration
 	scfg := cfg.ToServerConfig()
+	scfg.Inspect()
 	return server.StartServer(&scfg)
 }
