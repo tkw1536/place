@@ -21,6 +21,7 @@ type GitHubChecker struct {
 // GitHub API event names
 const (
 	GitHubPushEvent = "push"
+	GitHubPingEvent = "ping"
 )
 
 // Create a GitHubChecker instance from a parameter.
@@ -45,8 +46,10 @@ func (gh *GitHubChecker) Create(param string) error {
 	if len(params) >= 2 {
 		gh.events = params[2:]
 	} else {
-		gh.events = make([]string, 1)
-		gh.events[0] = GitHubPushEvent
+		gh.events = []string{
+			GitHubPingEvent,
+			GitHubPushEvent,
+		}
 	}
 
 	gh.eventsString = strings.Join(gh.events, ",")
