@@ -23,7 +23,7 @@ const (
 
 // Create a GitLabChecker instance from a parameter.
 // It is of the form "token[,ref[,events...]]", with the later components being optional
-func (gl GitLabChecker) Create(param string) error {
+func (gl *GitLabChecker) Create(param string) error {
 	var params = strings.Split(param, ",")
 
 	// token
@@ -53,7 +53,7 @@ func (gl GitLabChecker) Create(param string) error {
 }
 
 // Turn GitHubChecker into a string
-func (gl GitLabChecker) String() string {
+func (gl *GitLabChecker) String() string {
 	return fmt.Sprintf("GitLabChecker{%q,%s,%q}", gl.token, gl.ref, gl.eventsString)
 }
 
@@ -64,7 +64,7 @@ const (
 )
 
 // Check that a valid GitLab has been sent
-func (gl GitLabChecker) Check(req *http.Request) error {
+func (gl *GitLabChecker) Check(req *http.Request) error {
 	if err := checkPOSTMethod(req); err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (gl GitLabChecker) Check(req *http.Request) error {
 
 // containsEvent checks if a given event is contained within the events
 // that should be listened to
-func (gl GitLabChecker) containsEvent(event string) error {
+func (gl *GitLabChecker) containsEvent(event string) error {
 	for _, e := range gl.events {
 		if strings.EqualFold(event, e) {
 			return nil
@@ -98,7 +98,7 @@ func (gl GitLabChecker) containsEvent(event string) error {
 }
 
 // Checks if a given signature is valid
-func (gl GitLabChecker) validToken(token string) error {
+func (gl *GitLabChecker) validToken(token string) error {
 	if gl.token != token {
 		return fmt.Errorf("%s header should be %q, not %q", xGitLabToken, gl.token, token)
 	}
@@ -107,7 +107,7 @@ func (gl GitLabChecker) validToken(token string) error {
 }
 
 // checks if the right branch was pushed
-func (gl GitLabChecker) validBranch(payload []byte) error {
+func (gl *GitLabChecker) validBranch(payload []byte) error {
 	var event struct {
 		Ref string `json:"ref"`
 	}

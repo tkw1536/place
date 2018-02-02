@@ -18,9 +18,9 @@ func CreateChecker(name string, param string) Checker {
 	var checker Checker
 	switch name {
 	case "github":
-		checker = GitHubChecker{}
+		checker = &GitHubChecker{}
 	case "gitlab":
-		checker = GitLabChecker{}
+		checker = &GitLabChecker{}
 	case "debug":
 		checker = DebugChecker{}
 	default:

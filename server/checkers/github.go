@@ -25,7 +25,7 @@ const (
 
 // Create a GitHubChecker instance from a parameter.
 // It is of the form "token[,ref[,events...]]", with the later components being optional
-func (gh GitHubChecker) Create(param string) error {
+func (gh *GitHubChecker) Create(param string) error {
 	var params = strings.Split(param, ",")
 
 	// token
@@ -55,7 +55,7 @@ func (gh GitHubChecker) Create(param string) error {
 }
 
 // Turn GitHubChecker into a string
-func (gh GitHubChecker) String() string {
+func (gh *GitHubChecker) String() string {
 	return fmt.Sprintf("GitHubChecker{%q,%s,%q}", gh.token, gh.ref, gh.eventsString)
 }
 
@@ -66,7 +66,7 @@ const (
 )
 
 // Check that a valid GitHubRequest has been sent
-func (gh GitHubChecker) Check(req *http.Request) error {
+func (gh *GitHubChecker) Check(req *http.Request) error {
 	if err := checkPOSTMethod(req); err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (gh GitHubChecker) Check(req *http.Request) error {
 
 // containsEvent checks if a given event is contained within the events
 // that should be listened to
-func (gh GitHubChecker) containsEvent(event string) error {
+func (gh *GitHubChecker) containsEvent(event string) error {
 	for _, e := range gh.events {
 		if strings.EqualFold(event, e) {
 			return nil
@@ -96,7 +96,7 @@ func (gh GitHubChecker) containsEvent(event string) error {
 }
 
 // Checks if a given signature is valid
-func (gh GitHubChecker) validSignature(payload []byte, signature string) error {
+func (gh *GitHubChecker) validSignature(payload []byte, signature string) error {
 	expected := gh.hashPayload(payload)
 
 	signatureParts := strings.SplitN(signature, "=", 2)
@@ -119,7 +119,7 @@ func (gh GitHubChecker) validSignature(payload []byte, signature string) error {
 }
 
 // Hashes a given Payload
-func (gh GitHubChecker) hashPayload(payload []byte) string {
+func (gh *GitHubChecker) hashPayload(payload []byte) string {
 	hm := hmac.New(sha1.New, []byte(gh.token))
 	hm.Write(payload)
 	sum := hm.Sum(nil)
@@ -127,7 +127,7 @@ func (gh GitHubChecker) hashPayload(payload []byte) string {
 }
 
 // checks if the right branch was pushed
-func (gh GitHubChecker) validBranch(payload []byte) error {
+func (gh *GitHubChecker) validBranch(payload []byte) error {
 	var event struct {
 		Ref string `json:"ref"`
 	}
