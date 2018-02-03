@@ -2,6 +2,9 @@ package config
 
 // ToServerConfig turns an entry configuration into a server configuration
 import (
+	"os"
+	"path/filepath"
+
 	"../../server/checkers"
 	serverconfig "../../server/config"
 	updaterconfig "../../updater/config"
@@ -17,11 +20,11 @@ func (cfg Config) ToServerConfig() serverconfig.Config {
 	// load all the checkers
 	chks := make([]checkers.Checker, 0)
 	if cfg.GitHubSecret != "" {
-		chks = append(chks, checkers.CreateChecker("github", cfg.GitHubSecret+":refs/heads/"+cfg.GitBranch))
+		chks = append(chks, checkers.CreateChecker("github", cfg.GitHubSecret+",refs/heads/"+cfg.GitBranch))
 	}
 
 	if cfg.GitLabSecret != "" {
-		chks = append(chks, checkers.CreateChecker("gitlab", cfg.GitLabSecret+":refs/heads/"+cfg.GitBranch))
+		chks = append(chks, checkers.CreateChecker("gitlab", cfg.GitLabSecret+",refs/heads/"+cfg.GitBranch))
 	}
 
 	if cfg.Debug {
@@ -29,7 +32,14 @@ func (cfg Config) ToServerConfig() serverconfig.Config {
 	}
 	c.Checkers = chks
 
-	c.ScriptCommand = cfg.ToUpdaterConfig().ToCommand("/place/bin/place-git-update")
+	var placePath string
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err == nil {
+		placePath = filepath.Join(dir, "place-git-update")
+	} else {
+		placePath = "/place/bin/place-git-update"
+	}
+	c.ScriptCommand = cfg.ToUpdaterConfig().ToCommand(placePath)
 	c.ScriptTimeout = cfg.GitCloneTimeout
 	c.StaticPath = cfg.StaticPath
 	c.ProxyURL = cfg.ProxyURL
