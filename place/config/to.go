@@ -13,7 +13,6 @@ import (
 // ToServerConfig turns this configuration into a server configuration
 func (cfg Config) ToServerConfig() serverconfig.Config {
 	var c serverconfig.Config
-	c.Logger = cfg.Logger
 	c.BindAddress = cfg.BindAddress
 	c.HookPath = cfg.WebhookPath
 
@@ -49,7 +48,6 @@ func (cfg Config) ToServerConfig() serverconfig.Config {
 // ToUpdaterConfig turns this configuration into a updater configuration
 func (cfg Config) ToUpdaterConfig() updaterconfig.Config {
 	var c updaterconfig.Config
-	c.Logger = cfg.Logger
 	c.RepositoryURL = cfg.GitURL
 	c.SSHKeyPath = cfg.SSHKeyPath
 	c.OutDirectory = cfg.StaticPath

@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 
+	"../utils"
 	"../utils/git"
 
 	"./config"
@@ -19,10 +20,10 @@ func updateWithScript(cfg *config.Config) error {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	cfg.Logger.Printf("cloning %s into %s", cfg.RepositoryURL, tmpDir)
+	utils.Logger.Printf("cloning %s into %s", cfg.RepositoryURL, tmpDir)
 
 	// clone into it
-	if _, err := git.Clone(tmpDir, cfg.RepositoryURL, cfg.Ref, false, cfg.SSHKeyPath); err != nil {
+	if _, err := git.Clone(tmpDir, cfg.RepositoryURL.String(), cfg.Ref, false, cfg.SSHKeyPath); err != nil {
 		return err
 	}
 
@@ -32,7 +33,7 @@ func updateWithScript(cfg *config.Config) error {
 		shell = "/bin/sh"
 	}
 
-	cfg.Logger.Printf("running build script")
+	utils.Logger.Printf("running build script")
 
 	// and run the build script
 	cmd := exec.Command(shell, "-c", cfg.BuildScript+" "+cfg.OutDirectory)

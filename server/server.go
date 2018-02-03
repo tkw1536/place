@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 
+	"../utils"
 	"./config"
 	"./handlers"
 )
@@ -20,6 +21,6 @@ func StartServer(cfg *config.Config) error {
 		r.Handle("/", httputil.NewSingleHostReverseProxy(cfg.ProxyURL))
 	}
 
-	http.ListenAndServe(cfg.BindAddress, handlers.NewLoggingHandler(cfg.Logger, r))
+	http.ListenAndServe(cfg.BindAddress, handlers.NewLoggingHandler(utils.Logger, r))
 	return nil
 }

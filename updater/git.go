@@ -6,6 +6,8 @@ import (
 
 	gitu "../utils/git"
 
+	"../utils"
+
 	"./config"
 	"gopkg.in/src-d/go-billy.v4/osfs"
 	git "gopkg.in/src-d/go-git.v4"
@@ -21,10 +23,10 @@ func updateWithGit(cfg *config.Config) error {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	cfg.Logger.Printf("cloning %s into %s", cfg.RepositoryURL, tmpDir)
+	utils.Logger.Printf("cloning %s into %s", cfg.RepositoryURL, tmpDir)
 
 	// do a bare clone into it
-	r, err := gitu.Clone(tmpDir, cfg.RepositoryURL, cfg.Ref, true, cfg.SSHKeyPath)
+	r, err := gitu.Clone(tmpDir, cfg.RepositoryURL.String(), cfg.Ref, true, cfg.SSHKeyPath)
 	if err != nil {
 		return err
 	}
@@ -51,7 +53,7 @@ func updateWithGit(cfg *config.Config) error {
 	reset.Mode = git.HardReset
 	reset.Commit = *rev
 
-	cfg.Logger.Printf("checking out %s in %s", rev, cfg.OutDirectory)
+	utils.Logger.Printf("checking out %s in %s", rev, cfg.OutDirectory)
 
 	return wtr.Reset(&reset)
 }

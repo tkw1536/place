@@ -3,9 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/url"
-	"os"
 	"time"
 
 	"../../utils/command"
@@ -14,8 +12,6 @@ import (
 
 // Parse parses configuration from command line options
 func (cfg *Config) Parse(args []string) error {
-	cfg.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	flag.StringVar(&cfg.BindAddress, "bind", "", "address to bind to")
 	flag.StringVar(&cfg.HookPath, "webhook", "", "path that should respond to webhooks")
 

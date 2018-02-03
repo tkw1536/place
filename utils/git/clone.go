@@ -1,9 +1,12 @@
 package git
 
 import (
+	"os"
+
 	"../sshkey"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 )
 
 // Clone clones a repository to a local path
@@ -24,5 +27,15 @@ func Clone(path string, repository string, ref string, bare bool, keyPath string
 		options.Auth = auth
 	}
 
-	return git.PlainClone(path, bare, &options)
+	repo, err := git.PlainClone(path, bare, &options)
+
+	// if cloning fails because of an invalid auth method (e.g. when using ssh keys on a git repository)
+	// then try the same thing again
+	if err == transport.ErrInvalidAuthMethod && options.Auth != nil {
+		os.RemoveAll(path)
+		options.Auth = nil
+		return git.PlainClone(path, bare, &options)
+	}
+
+	return repo, err
 }

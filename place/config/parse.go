@@ -1,35 +1,58 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"net/url"
 	"os"
 	"strconv"
 	"time"
+
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 )
+
+func getEnvWithDefault(env, def string) string {
+	if val := os.Getenv(env); val != "" {
+		return val
+	}
+	return def
+}
 
 // Parse parses the configuration from the environment
 func (cfg *Config) Parse() error {
-	cfg.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+	// Bind Address and webhook path
+	cfg.BindAddress = getEnvWithDefault("BIND_ADDRESS", "0.0.0.0:80")
+	cfg.WebhookPath = getEnvWithDefault("WEBHOOK_PATH", "/webhook/")
 
+	// git url and optional ssh key path
+	g := os.Getenv("GIT_URL")
+	gu, err := transport.NewEndpoint(g)
+	if err != nil {
+		return fmt.Errorf("%s is not a valid GIT_URL", g)
+	}
+	cfg.GitURL = gu
 	cfg.SSHKeyPath = os.Getenv("SSH_KEY_PATH")
-	cfg.BindAddress = os.Getenv("BIND_ADDRESS")
-	cfg.WebhookPath = os.Getenv("WEBHOOK_PATH")
-	cfg.GitURL = os.Getenv("GIT_URL")
-	cfg.GitBranch = os.Getenv("GIT_BRANCH")
-	timeout, err := strconv.Atoi(os.Getenv("GIT_CLONE_TIMEOUT"))
-	if err != nil || timeout <= 0 {
-		if err != nil {
-			return err
-		}
-		cfg.GitCloneTimeout = time.Duration(600) * time.Second
+
+	// git branch -- defaults to master
+	cfg.GitBranch = getEnvWithDefault("GIT_BRANCH", "master")
+
+	// timeout defaults to 600
+	timeout, err := strconv.Atoi(getEnvWithDefault("GIT_CLONE_TIMEOUT", "600"))
+	if err != nil {
+		return err
+	} else if timeout <= 0 {
+		return fmt.Errorf("Timeout must be > 0, not %d", timeout)
 	} else {
 		cfg.GitCloneTimeout = time.Duration(timeout) * time.Second
 	}
+
+	// github and gitlab secrets (if any)
+	// TODO: Use checker environments for this and allow auto-generation of secrets
 	cfg.GitHubSecret = os.Getenv("GITHUB_SECRET")
 	cfg.GitLabSecret = os.Getenv("GITLAB_SECRET")
 	cfg.Debug = os.Getenv("DEBUG") == "1"
-	cfg.StaticPath = os.Getenv("STATIC_PATH")
+
+	cfg.StaticPath = getEnvWithDefault("STATIC_PATH", "/var/www/html")
+
 	cfg.BuildScript = os.Getenv("BUILD_SCRIPT")
 
 	pus := os.Getenv("PROXY_URL")

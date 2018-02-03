@@ -2,17 +2,13 @@ package config
 
 import (
 	"fmt"
-	"log"
-	"os"
 
 	"../../utils/verify"
 )
 
 // verifies the configuration settings
 func validateConfig(cfg *Config) error {
-	cfg.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
-
-	if cfg.RepositoryURL == "" {
+	if cfg.RepositoryURL == nil {
 		return fmt.Errorf("--from must be specified")
 	}
 

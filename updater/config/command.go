@@ -5,7 +5,7 @@ package config
 func (cfg Config) ToCommand(path string) []string {
 	command := []string{
 		path,
-		"-from", cfg.RepositoryURL,
+		"-from", cfg.RepositoryURL.String(),
 		"-ssh-key", cfg.SSHKeyPath,
 		"-to", cfg.OutDirectory,
 		"-ref", cfg.Ref,

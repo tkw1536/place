@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sync"
 
+	"../../utils"
 	"../../utils/command"
 	"../config"
 )
@@ -29,9 +30,9 @@ func (hh HookHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	for _, c := range hh.cfg.Checkers {
 		name := c.String()
 		if err := c.Check(req); err != nil {
-			hh.cfg.Logger.Printf("%s checker failed: %s\n", name, err.Error())
+			utils.Logger.Printf("%s checker failed: %s\n", name, err.Error())
 		} else {
-			hh.cfg.Logger.Printf("%s checker succeeded\n", name)
+			utils.Logger.Printf("%s checker succeeded\n", name)
 			fmt.Fprintf(res, "Success\n")
 			go hh.runHook()
 			return
@@ -41,20 +42,20 @@ func (hh HookHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 }
 
 func (hh HookHandler) runHook() {
-	hh.cfg.Logger.Println("queuing hook")
+	utils.Logger.Println("queuing hook")
 
 	// we only run one hook at a time
 	hh.lock.Lock()
 	defer hh.lock.Unlock()
 
-	hh.cfg.Logger.Println("running hook")
+	utils.Logger.Println("running hook")
 
 	_, err := command.WithTimeout(hh.cfg.ScriptTimeout, hh.cfg.ScriptCommand...)
 
 	// error handling
 	if err != nil {
-		hh.cfg.Logger.Printf("hook failed to run: %s\n", err.Error())
+		utils.Logger.Printf("hook failed to run: %s\n", err.Error())
 	} else {
-		hh.cfg.Logger.Print("hook finished")
+		utils.Logger.Print("hook finished")
 	}
 }

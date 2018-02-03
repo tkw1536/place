@@ -1,25 +1,24 @@
 package config
 
 import (
-	"log"
+	"../../utils"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 )
 
 // Config represents the Configuration used by the updater script
 type Config struct {
-	RepositoryURL string
+	RepositoryURL *transport.Endpoint
 	SSHKeyPath    string
 	OutDirectory  string
 	Ref           string
 	BuildScript   string
-
-	Logger *log.Logger
 }
 
 // Inspect prints information about the configuration
 func (cfg Config) Inspect() {
-	cfg.Logger.Printf("RepositoryURL: %s\n", cfg.RepositoryURL)
-	cfg.Logger.Printf("SSHKeyPath:    %s\n", cfg.SSHKeyPath)
-	cfg.Logger.Printf("OutDirectory:  %s\n", cfg.OutDirectory)
-	cfg.Logger.Printf("Ref:           %s\n", cfg.Ref)
-	cfg.Logger.Printf("BuildScript:   %s\n", cfg.BuildScript)
+	utils.Logger.Printf("RepositoryURL: %s\n", cfg.RepositoryURL.String())
+	utils.Logger.Printf("SSHKeyPath:    %s\n", cfg.SSHKeyPath)
+	utils.Logger.Printf("OutDirectory:  %s\n", cfg.OutDirectory)
+	utils.Logger.Printf("Ref:           %s\n", cfg.Ref)
+	utils.Logger.Printf("BuildScript:   %s\n", cfg.BuildScript)
 }
