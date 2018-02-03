@@ -3,7 +3,7 @@ package git
 import (
 	"os"
 
-	"../sshkey"
+	"github.com/tkw1536/place/utils/sshkey"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport"

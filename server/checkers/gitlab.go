@@ -22,34 +22,13 @@ const (
 )
 
 // Create a GitLabChecker instance from a parameter.
-// It is of the form "token[,ref[,events...]]", with the later components being optional
-func (gl *GitLabChecker) Create(param string) error {
-	var params = strings.Split(param, ",")
+func (gl *GitLabChecker) Create(token string, ref string) {
+	gl.token = token
+	gl.ref = ref
 
-	// token
-	if len(params) == 0 {
-		return fmt.Errorf("GitLabChecker needs at least a token")
+	gl.events = []string{
+		GitLabPushEvent,
 	}
-	gl.token = params[0]
-
-	// ref = refs/heads/master"
-	if len(params) == 1 {
-		gl.ref = "refs/heads/master"
-	} else {
-		gl.ref = params[1]
-	}
-
-	// events = [Push]
-	if len(params) >= 2 {
-		gl.events = params[2:]
-	} else {
-		gl.events = make([]string, 1)
-		gl.events[0] = GitLabPushEvent
-	}
-
-	gl.eventsString = strings.Join(gl.events, ",")
-
-	return nil
 }
 
 // Turn GitHubChecker into a string

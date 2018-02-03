@@ -7,28 +7,8 @@ import (
 
 // Checker represents an object which validates if a request should trigger a webh
 type Checker interface {
-	Create(param string) error
 	String() string
 	Check(req *http.Request) error
-}
-
-// CreateChecker creates a checker of the given name
-// and the given parameter
-func CreateChecker(name string, param string) Checker {
-	var checker Checker
-	switch name {
-	case "github":
-		checker = &GitHubChecker{}
-	case "gitlab":
-		checker = &GitLabChecker{}
-	case "debug":
-		checker = DebugChecker{}
-	default:
-		return nil
-	}
-
-	checker.Create(param)
-	return checker
 }
 
 // checks that the POST method is used or returns on error

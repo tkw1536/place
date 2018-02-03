@@ -12,10 +12,9 @@ import (
 
 // GitHubChecker runs the Hook if it receives a valid GitHub web hook
 type GitHubChecker struct {
-	token        string
-	ref          string
-	events       []string
-	eventsString string // for printing only
+	token  string
+	ref    string
+	events []string
 }
 
 // GitHub API event names
@@ -24,42 +23,24 @@ const (
 	GitHubPingEvent = "ping"
 )
 
+func (gh *GitHubChecker) eventsString() string {
+	return strings.Join(gh.events, ",")
+}
+
 // Create a GitHubChecker instance from a parameter.
-// It is of the form "token[,ref[,events...]]", with the later components being optional
-func (gh *GitHubChecker) Create(param string) error {
-	var params = strings.Split(param, ",")
+func (gh *GitHubChecker) Create(token string, ref string) {
+	gh.token = token
+	gh.ref = ref
 
-	// token
-	if len(params) == 0 {
-		return fmt.Errorf("GitHubChecker needs at least a token")
+	gh.events = []string{
+		GitHubPingEvent,
+		GitHubPushEvent,
 	}
-	gh.token = params[0]
-
-	// ref = refs/heads/master"
-	if len(params) == 1 {
-		gh.ref = "refs/heads/master"
-	} else {
-		gh.ref = params[1]
-	}
-
-	// events = [Push]
-	if len(params) >= 2 {
-		gh.events = params[2:]
-	} else {
-		gh.events = []string{
-			GitHubPingEvent,
-			GitHubPushEvent,
-		}
-	}
-
-	gh.eventsString = strings.Join(gh.events, ",")
-
-	return nil
 }
 
 // Turn GitHubChecker into a string
 func (gh *GitHubChecker) String() string {
-	return fmt.Sprintf("GitHubChecker{%q,%s,%q}", gh.token, gh.ref, gh.eventsString)
+	return fmt.Sprintf("GitHubChecker{%q,%s,%q}", gh.token, gh.eventsString(), gh.ref)
 }
 
 // the header names for Github
@@ -95,7 +76,7 @@ func (gh *GitHubChecker) containsEvent(event string) error {
 		}
 	}
 
-	return fmt.Errorf("%s header should be one of %s, not %q", xGitHubEvent, gh.eventsString, event)
+	return fmt.Errorf("%s header should be one of %s, not %q", xGitHubEvent, gh.eventsString(), event)
 }
 
 // Checks if a given signature is valid

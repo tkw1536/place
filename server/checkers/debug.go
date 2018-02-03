@@ -8,8 +8,7 @@ import (
 type DebugChecker struct{}
 
 // Create a new DebugChecker
-func (dbg DebugChecker) Create(params string) error {
-	return nil
+func (dbg DebugChecker) Create() {
 }
 
 // Turn the Checker into a string

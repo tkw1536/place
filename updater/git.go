@@ -4,11 +4,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	gitu "../utils/git"
+	"github.com/tkw1536/place/utils"
+	gitu "github.com/tkw1536/place/utils/git"
 
-	"../utils"
-
-	"./config"
+	"github.com/tkw1536/place/config"
 	"gopkg.in/src-d/go-billy.v4/osfs"
 	git "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
@@ -23,16 +22,16 @@ func updateWithGit(cfg *config.Config) error {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	utils.Logger.Printf("cloning %s into %s", cfg.RepositoryURL, tmpDir)
+	utils.Logger.Printf("cloning %s into %s", cfg.GitURL.String(), tmpDir)
 
 	// do a bare clone into it
-	r, err := gitu.Clone(tmpDir, cfg.RepositoryURL.String(), cfg.Ref, true, cfg.SSHKeyPath)
+	r, err := gitu.Clone(tmpDir, cfg.GitURL.String(), cfg.GitRef(), true, cfg.SSHKeyPath)
 	if err != nil {
 		return err
 	}
 
 	// open a new repository
-	cor, err := git.Open(r.Storer, osfs.New(cfg.OutDirectory))
+	cor, err := git.Open(r.Storer, osfs.New(cfg.StaticPath))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -43,7 +42,7 @@ func updateWithGit(cfg *config.Config) error {
 		panic(err.Error())
 	}
 
-	rev, err := cor.ResolveRevision(plumbing.Revision(cfg.Ref))
+	rev, err := cor.ResolveRevision(plumbing.Revision(cfg.GitRef()))
 	if err != nil {
 		return err
 	}
@@ -53,7 +52,7 @@ func updateWithGit(cfg *config.Config) error {
 	reset.Mode = git.HardReset
 	reset.Commit = *rev
 
-	utils.Logger.Printf("checking out %s in %s", rev, cfg.OutDirectory)
+	utils.Logger.Printf("checking out %s in %s", rev, cfg.StaticPath)
 
 	return wtr.Reset(&reset)
 }

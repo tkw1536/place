@@ -1,19 +1,20 @@
-package handlers
+package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"sync"
 
-	"../../utils"
-	"../../utils/command"
-	"../config"
+	"github.com/tkw1536/place/config"
+	"github.com/tkw1536/place/updater"
+	"github.com/tkw1536/place/utils"
 )
 
 // HookHandler implements a handler for Git-like-webhooks
 type HookHandler struct {
-	lock *sync.Mutex
-	cfg  *config.Config
+	lock   *sync.Mutex
+	config *config.Config
 }
 
 // NewHookHandler creates a new HookHandler
@@ -22,12 +23,12 @@ func NewHookHandler(cfg *config.Config) HookHandler {
 
 	var handler HookHandler
 	handler.lock = &lock
-	handler.cfg = cfg
+	handler.config = cfg
 	return handler
 }
 
 func (hh HookHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	for _, c := range hh.cfg.Checkers {
+	for _, c := range hh.config.Checkers() {
 		name := c.String()
 		if err := c.Check(req); err != nil {
 			utils.Logger.Printf("%s checker failed: %s\n", name, err.Error())
@@ -50,7 +51,9 @@ func (hh HookHandler) runHook() {
 
 	utils.Logger.Println("running hook")
 
-	_, err := command.WithTimeout(hh.cfg.ScriptTimeout, hh.cfg.ScriptCommand...)
+	ctx, cancel := context.WithTimeout(context.Background(), hh.config.GitCloneTimeout)
+	defer cancel() // releases resources if slowOperation completes before timeout elapses
+	err := updater.RunUpdate(ctx, hh.config)
 
 	// error handling
 	if err != nil {
