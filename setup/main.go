@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"syscall"
 )
 
 var (
@@ -89,8 +90,10 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/gh", github.UpdateStateHandler)
 	mux.HandleFunc("/raw", savePlainConfigHandler)
-
 	mux.HandleFunc("/dump", dumpConfig)
+	mux.HandleFunc("/finalize", func(w http.ResponseWriter, r *http.Request) {
+		defer syscall.Exec(os.Args[0], os.Args[1:], os.Environ())
+	})
 
 	staticFiles := http.FileServer(http.Dir("static"))
 	mux.Handle("/", http.StripPrefix("", staticFiles))
