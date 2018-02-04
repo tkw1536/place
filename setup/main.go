@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -88,7 +87,6 @@ func runChild(cmd string, args []string) int {
 }
 
 func main() {
-	fmt.Println(os.Args)
 	if configured {
 		ret := runChild(os.Args[1], os.Args[2:])
 		os.Exit(ret)
