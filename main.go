@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/tkw1536/place/config"
@@ -11,8 +12,13 @@ import (
 var cfg config.Config
 
 func main() {
+	if len(os.Args) != 2 {
+		panic(fmt.Errorf("Usage: %s configfile", os.Args[0]))
+	}
 	// read the configuration
-	cfg.Load(os.Args[1])
+	if err := cfg.Load(os.Args[1]); err != nil {
+		panic(fmt.Errorf("Can't load configfile %s: %s", os.Args[1], err.Error()))
+	}
 	cfg.Inspect()
 
 	// and we are going to place stuff now
