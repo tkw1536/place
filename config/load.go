@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"io"
 	"io/ioutil"
 )
 
@@ -12,4 +13,9 @@ func (cfg *Config) Load(path string) error {
 		return e
 	}
 	return json.Unmarshal(file, cfg)
+}
+
+func (cfg *Config) Read(r io.Reader) error {
+	dec := json.NewDecoder(r)
+	return dec.Decode(cfg)
 }

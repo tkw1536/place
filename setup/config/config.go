@@ -41,3 +41,7 @@ func WriteToPath(path string) error {
 func Get() *config.Config {
 	return &theConfig
 }
+
+func Set(conf *config.Config) {
+	theConfig = *conf
+}

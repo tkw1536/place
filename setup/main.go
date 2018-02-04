@@ -88,6 +88,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/gh", github.UpdateStateHandler)
+	mux.HandleFunc("/raw", savePlainConfigHandler)
 
 	mux.HandleFunc("/dump", dumpConfig)
 
