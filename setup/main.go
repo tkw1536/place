@@ -3,14 +3,16 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/tkw1536/place/setup/auth"
-	"github.com/tkw1536/place/setup/config"
-	"github.com/tkw1536/place/setup/github"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"syscall"
+
+	"github.com/tkw1536/place/setup/auth"
+	"github.com/tkw1536/place/setup/config"
+	"github.com/tkw1536/place/setup/github"
 )
 
 var (
@@ -86,6 +88,7 @@ func runChild(cmd string, args []string) int {
 }
 
 func main() {
+	fmt.Println(os.Args)
 	if configured {
 		ret := runChild(os.Args[1], os.Args[2:])
 		os.Exit(ret)
@@ -96,7 +99,7 @@ func main() {
 	mux.HandleFunc("/raw", savePlainConfigHandler)
 	mux.HandleFunc("/dump", dumpConfig)
 	mux.HandleFunc("/finalize", func(w http.ResponseWriter, r *http.Request) {
-		defer syscall.Exec(os.Args[0], os.Args[1:], os.Environ())
+		defer syscall.Exec(os.Args[0], os.Args, os.Environ())
 	})
 
 	staticFiles := http.FileServer(http.Dir("static"))
