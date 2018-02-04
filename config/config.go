@@ -11,13 +11,15 @@ import (
 
 // Config specifies the configuration used by place
 type Config struct {
-	SSHKeyPath string // path to an ssh key (if any)
-
 	BindAddress string // address to bind to, defaults to 0.0.0.0:80
 	WebhookPath string // path to server webhook under, defaults to /webhook/
 
 	GitURL    *transport.Endpoint // url to clone repository from
 	GitBranch string              // branch to clone and set of events to listen to, defaults to "master"
+
+	GitSSHKeyPath string // ssh key for git clone (if any)
+	GitUsername   string // username for git clone (if any)
+	GitPassword   string // password for git clone (if any)
 
 	GitCloneTimeout time.Duration // timeout for git clone
 
@@ -33,13 +35,20 @@ type Config struct {
 
 // Inspect inspects the configuration
 func (cfg Config) Inspect() {
-	utils.Logger.Printf("SSHKeyPath:      %s\n", cfg.SSHKeyPath)
-
 	utils.Logger.Printf("BindAddress:     %s\n", cfg.BindAddress)
 	utils.Logger.Printf("WebhookPath:     %s\n", cfg.WebhookPath)
 
 	utils.Logger.Printf("GitURL:          %s\n", cfg.GitURL)
 	utils.Logger.Printf("GitBranch:       %s\n", cfg.GitBranch)
+
+	utils.Logger.Printf("SSHKeyPath:      %s\n", cfg.GitSSHKeyPath)
+	utils.Logger.Printf("GitUsername:     %s\n", cfg.GitUsername)
+
+	if cfg.GitPassword != "" {
+		utils.Logger.Printf("GitPassword:     ******\n")
+	} else {
+		utils.Logger.Printf("GitPassword:     \n")
+	}
 
 	utils.Logger.Printf("GitCloneTimeout: %d\n", cfg.GitCloneTimeout/1000)
 

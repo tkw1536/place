@@ -10,8 +10,16 @@ import (
 // Validate checks if the configuration is valid
 // and returns nil if it is, and an error message if it is not.
 func (cfg Config) Validate() error {
-	if cfg.SSHKeyPath != "" {
-		if err := verify.File(cfg.SSHKeyPath); err != nil {
+	if cfg.GitUsername != "" && cfg.GitSSHKeyPath != "" {
+		return fmt.Errorf("Both GitUsername and GitSSHKeyPath are set, you may use at most one. ")
+	}
+
+	if cfg.GitUsername != "" && cfg.GitPassword != "" {
+		return fmt.Errorf("GitUsername is set, but no password was given. ")
+	}
+
+	if cfg.GitSSHKeyPath != "" {
+		if err := verify.File(cfg.GitSSHKeyPath); err != nil {
 			return err
 		}
 	}

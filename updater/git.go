@@ -6,11 +6,10 @@ import (
 	"os"
 
 	"github.com/tkw1536/place/utils"
-	gitu "github.com/tkw1536/place/utils/git"
 
 	"github.com/tkw1536/place/config"
 	"gopkg.in/src-d/go-billy.v4/osfs"
-	git "gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
@@ -23,10 +22,16 @@ func updateWithGit(ctx *context.Context, cfg *config.Config) error {
 	}
 	defer os.RemoveAll(tmpDir)
 
+	// load options
+	opts, err := cfg.GitCloneOptions()
+	if err != nil {
+		return err
+	}
+
 	utils.Logger.Printf("cloning %s into %s", cfg.GitURL.String(), tmpDir)
 
 	// do a bare clone into it
-	r, err := gitu.Clone(ctx, tmpDir, cfg.GitURL.String(), cfg.GitRef(), true, cfg.SSHKeyPath)
+	r, err := git.PlainCloneContext(*ctx, tmpDir, true, opts)
 	if err != nil {
 		return err
 	}

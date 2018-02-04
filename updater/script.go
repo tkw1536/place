@@ -8,7 +8,7 @@ import (
 	"os/exec"
 
 	"github.com/tkw1536/place/utils"
-	"github.com/tkw1536/place/utils/git"
+	git "gopkg.in/src-d/go-git.v4"
 
 	"github.com/tkw1536/place/config"
 )
@@ -21,10 +21,16 @@ func updateWithScript(ctx *context.Context, cfg *config.Config) error {
 	}
 	defer os.RemoveAll(tmpDir)
 
+	// load options
+	opts, err := cfg.GitCloneOptions()
+	if err != nil {
+		return err
+	}
+
+	// and clone
 	utils.Logger.Printf("cloning %s into %s", cfg.GitURL, tmpDir)
 
-	// clone into it
-	if _, err := git.Clone(ctx, tmpDir, cfg.GitURL.String(), cfg.GitRef(), false, cfg.SSHKeyPath); err != nil {
+	if _, err := git.PlainCloneContext(*ctx, tmpDir, false, opts); err != nil {
 		return err
 	}
 
