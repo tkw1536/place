@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/tkw1536/place-setup/auth"
-	"github.com/tkw1536/place-setup/config"
-	"github.com/tkw1536/place-setup/github"
+	"github.com/tkw1536/place/setup/auth"
+	"github.com/tkw1536/place/setup/config"
+	"github.com/tkw1536/place/setup/github"
 	"log"
 	"net/http"
 	"os"

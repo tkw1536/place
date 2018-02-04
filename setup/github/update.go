@@ -109,8 +109,6 @@ func UpdateStateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Println(webhookURL)
 
-		currentRepo.
-
 		// Try and hook up a webhook
 		/*
 			secret, err := uuid.NewRandom()
