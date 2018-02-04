@@ -25,6 +25,10 @@ func init() {
 		configPath = envPath
 	}
 
+	if envAddr := os.Getenv("BIND_ADDRESS"); envAddr != "" {
+		listenAddr = envAddr
+	}
+
 	err := config.ReadFromPath(configPath)
 	if err != nil {
 		log.Printf("Failed to load config file from %v: %v", configPath, err)
