@@ -92,7 +92,7 @@ func main() {
 	mux.HandleFunc("/dump", dumpConfig)
 
 	staticFiles := http.FileServer(http.Dir("static"))
-	mux.Handle("/static/", http.StripPrefix("/static/", staticFiles))
+	mux.Handle("/", http.StripPrefix("", staticFiles))
 
 	var stickyUser = auth.StickyUser{
 		Next: mux,
