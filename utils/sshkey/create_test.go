@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"../verify"
+	"github.com/tkw1536/place/utils/verify"
 )
 
 func TestCreate(t *testing.T) {
