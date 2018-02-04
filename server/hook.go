@@ -53,7 +53,7 @@ func (hh HookHandler) runHook() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), hh.config.GitCloneTimeout)
 	defer cancel() // releases resources if slowOperation completes before timeout elapses
-	err := updater.RunUpdate(ctx, hh.config)
+	err := updater.RunUpdate(&ctx, hh.config)
 
 	// error handling
 	if err != nil {

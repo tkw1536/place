@@ -1,6 +1,7 @@
 package updater
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"github.com/tkw1536/place/config"
 )
 
-func updateWithScript(cfg *config.Config) error {
+func updateWithScript(ctx *context.Context, cfg *config.Config) error {
 	// create a temporary folder
 	tmpDir, err := ioutil.TempDir("", "update")
 	if err != nil {
@@ -23,7 +24,7 @@ func updateWithScript(cfg *config.Config) error {
 	utils.Logger.Printf("cloning %s into %s", cfg.GitURL, tmpDir)
 
 	// clone into it
-	if _, err := git.Clone(tmpDir, cfg.GitURL.String(), cfg.GitRef(), false, cfg.SSHKeyPath); err != nil {
+	if _, err := git.Clone(ctx, tmpDir, cfg.GitURL.String(), cfg.GitRef(), false, cfg.SSHKeyPath); err != nil {
 		return err
 	}
 
@@ -36,7 +37,7 @@ func updateWithScript(cfg *config.Config) error {
 	utils.Logger.Printf("running build script")
 
 	// and run the build script
-	cmd := exec.Command(shell, "-c", cfg.BuildScript+" "+cfg.StaticPath)
+	cmd := exec.CommandContext(*ctx, shell, "-c", cfg.BuildScript+" "+cfg.StaticPath)
 	cmd.Dir = tmpDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

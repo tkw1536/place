@@ -1,6 +1,7 @@
 package git
 
 import (
+	"context"
 	"os"
 
 	"github.com/tkw1536/place/utils/sshkey"
@@ -11,7 +12,7 @@ import (
 
 // Clone clones a repository to a local path
 // using a given ref and optionally a given ssh key
-func Clone(path string, repository string, ref string, bare bool, keyPath string) (*git.Repository, error) {
+func Clone(ctx *context.Context, path string, repository string, ref string, bare bool, keyPath string) (*git.Repository, error) {
 
 	var options git.CloneOptions
 	options.URL = repository
@@ -27,7 +28,7 @@ func Clone(path string, repository string, ref string, bare bool, keyPath string
 		options.Auth = auth
 	}
 
-	repo, err := git.PlainClone(path, bare, &options)
+	repo, err := git.PlainCloneContext(*ctx, path, bare, &options)
 
 	// if cloning fails because of an invalid auth method (e.g. when using ssh keys on a git repository)
 	// then try the same thing again

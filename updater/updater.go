@@ -7,12 +7,12 @@ import (
 )
 
 // RunUpdate runs an update with the given configuration
-func RunUpdate(ctx context.Context, cfg *config.Config) error {
+func RunUpdate(ctx *context.Context, cfg *config.Config) error {
 	var err error
 	if len(cfg.BuildScript) == 0 {
-		err = updateWithGit(cfg)
+		err = updateWithGit(ctx, cfg)
 	} else {
-		err = updateWithScript(cfg)
+		err = updateWithScript(ctx, cfg)
 	}
 
 	return err

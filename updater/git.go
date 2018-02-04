@@ -1,6 +1,7 @@
 package updater
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 
@@ -14,7 +15,7 @@ import (
 )
 
 // clone `source`, revision `refrev`, and force check it out at dest
-func updateWithGit(cfg *config.Config) error {
+func updateWithGit(ctx *context.Context, cfg *config.Config) error {
 	// create a temporary script
 	tmpDir, err := ioutil.TempDir("", "update")
 	if err != nil {
@@ -25,7 +26,7 @@ func updateWithGit(cfg *config.Config) error {
 	utils.Logger.Printf("cloning %s into %s", cfg.GitURL.String(), tmpDir)
 
 	// do a bare clone into it
-	r, err := gitu.Clone(tmpDir, cfg.GitURL.String(), cfg.GitRef(), true, cfg.SSHKeyPath)
+	r, err := gitu.Clone(ctx, tmpDir, cfg.GitURL.String(), cfg.GitRef(), true, cfg.SSHKeyPath)
 	if err != nil {
 		return err
 	}
