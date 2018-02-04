@@ -1,43 +1,27 @@
-FROM alpine
-MAINTAINER Tom Wiesing <tom@tkw01536.de>
+FROM golang:1-alpine
 
-# Install ca-certificates and openssh
-RUN apk --no-cache --no-progress add ca-certificates openssh && \
-    rm -rf /var/cache/apk/*
+# Build dependencies
+RUN apk --no-cache --no-progress add ca-certificates openssh go git bash musl-dev \
+    && rm -rf /var/cache/apk/*
 
-ADD cmd/ /place/cmd
-ADD place /place/place
-ADD server /place/server
-ADD updater /place/updater
-ADD utils   /place/utils
-ADD Makefile /place/Makefile
-WORKDIR /place/
+ADD . /go/src/github.com/tkw1536/place
+WORKDIR /go/src/github.com/tkw1536/place
+RUN go get -v .
+RUN CGO_ENABLED=0 GOOS=linux go build -a .
+
+
+FROM alpine:latest  
+RUN apk --no-cache add ca-certificates openssl
 
 # Install make, build, and exit
-RUN apk --no-cache --no-progress add --virtual build-deps make go git bash musl-dev && \
-    make all && \
-    rm -rf $HOME/go && \
-    apk --no-progress del build-deps && \
-    rm -rf /var/cache/apk/*
+RUN apk --no-cache --no-progress add ca-certificates openssh \
+    && rm -rf /var/cache/apk/*
+
+COPY --from=0 /go/src/github.com/tkw1536/place/place  /root/
 
 # listen on port 80
 EXPOSE 80
-ENV BIND_ADDRESS 0.0.0.0:80
-
-# store the ssh key in /data/id_rsa
-VOLUME /data/
-ENV SSH_KEY_PATH /data/id_rsa
-
-# server the webhook under /webhook/
-ENV WEBHOOK_PATH /webhook/
-
-# and setup static hosting under /var/www/html
 VOLUME /var/www/html
-ENV STATIC_PATH /var/www/html
-
-ENV GIT_BRANCH master
-ENV GIT_CLONE_TIMEOUT 600
-
 
 # to be provided by user:
 # ENV GIT_URL git@github.com:example/domain.tld.git
@@ -45,4 +29,4 @@ ENV GIT_CLONE_TIMEOUT 600
 # ENV GITLAB_SECRET supersecret
 # ENV DEBUG 1
 
-ENTRYPOINT ["/place/bin/place"]
+ENTRYPOINT ["/root/place"]

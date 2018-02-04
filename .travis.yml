@@ -1,33 +1,5 @@
-language: generic
-sudo: true
+language: go
 
-env:
-  global:
-    - GOVERSION=1.9.3
-    - GOOS=linux
-    - GOARCH=amd64
-
-before_install:
-  # Travis, do not use any existing go. Thank you. 
-  - unset GOROOT
-  - unset GOTOOLDIR
-  # get and install go freshly
-  - wget https://dl.google.com/go/go$GOVERSION.$GOOS-$GOARCH.tar.gz
-    && sudo tar -C /usr/local -xzf go$GOVERSION.$GOOS-$GOARCH.tar.gz
-    && rm go$GOVERSION.$GOOS-$GOARCH.tar.gz
-    && export PATH=/usr/local/go/bin:$PATH
-  # setup variables
-  - export GOPATH=$HOME/go
-    && export PATH=$(go env GOPATH)/bin:$PATH
-    && mkdir $GOPATH
-  # Print go information
-  - go version
-    && go env
-
-# and install all the deps
-install:
-  - make deps
-
-script:
-  - make all
-  - make test
+go:
+  - 1.8
+  - 1.9
