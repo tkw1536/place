@@ -7,7 +7,7 @@ RUN apk --no-cache --no-progress add ca-certificates openssh go git bash musl-de
 ADD . /go/src/github.com/tkw1536/place
 WORKDIR /go/src/github.com/tkw1536/place
 RUN go get -v .
-RUN CGO_ENABLED=0 GOOS=linux go build -a .
+RUN CGO_ENABLED=0 GOOS=linux go build -a github.com/tkw1536/place/cmd/place
 
 
 FROM alpine:latest  
