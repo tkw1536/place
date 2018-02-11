@@ -1,15 +1,42 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>place-setup</title>
+        <title>place-setup-custom</title>
     </head>
 
     <body>
         <div>
-            <h1>Choose your setup method: </h1>
-            <a href="/github/">GitHub</a>
-            <a href="/gitlab/">GitLab</a>
-            <a href="/custom/">Custom Setup</a>
-        </div>
+            <h1>Enter your configuration: (for now)</h1>
+            <form>
+<textarea>
+{
+    "BindAddress": "0.0.0.0:80", 
+    "WebhookPath": "/webhook/", 
+    "GitURL": {
+        "Protocol": "http",
+        "User": "", 
+        "Password": "", 
+        "Host": "example.com",
+        "Port": 0,
+        "Path": "..."
+    }, 
+    "GitBranch": "master", 
+    "GitSSHKeyPath": "", 
+    "GitUsername": "", 
+    "GitPassword": "", 
+    "GitCloneTimeout": 600, 
+    "GitHubSecret": "", 
+    "GitLabSecret": "", 
+    "Debug": false, 
+    "StaticPath": ".", 
+    "ProxyURL": null, 
+    "BuildScript": ""
+}
+</textarea>
+    <input type="submit" value="Use">
+        </form>
+
+        <script type="text/javascript" src="/setup/js/jquery.js"></script>
+        <script type="text/javascript" src="/setup/js/custom.js"></script>
     </body>
 </html>

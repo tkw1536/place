@@ -1,24 +1,17 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"log"
-	"net/http"
 	"os"
-	"os/exec"
-	"syscall"
 
-	"github.com/tkw1536/place/setup/auth"
-	"github.com/tkw1536/place/setup/config"
-	"github.com/tkw1536/place/setup/github"
+	"github.com/tkw1536/place/config"
+	"github.com/tkw1536/place/utils"
 )
 
+/* minimal configuration */
 var (
-	listenAddr = "0.0.0.0:9001"
-	setUpDone  = false
-	configPath = config.DefaultPath
-	configured bool
+	listenAddr   = "0.0.0.0:80"  // address to server under
+	configPath   = "config.json" // path to read / write configuration from
+	childCommand = os.Args[1:]   // command to start
 )
 
 func init() {
@@ -29,86 +22,33 @@ func init() {
 	if envAddr := os.Getenv("BIND_ADDRESS"); envAddr != "" {
 		listenAddr = envAddr
 	}
+}
 
-	err := config.ReadFromPath(configPath)
+// isConfigured checks if the configuration file exists and is valid
+func isConfigured() bool {
+	var cfg config.Config
+
+	err := cfg.Load(configPath)
 	if err != nil {
-		log.Printf("Failed to load config file from %v: %v", configPath, err)
+		utils.Logger.Printf("Failed to load config file from %v: %v", configPath, err)
 	}
 
-	// If the config could be loaded, we are already configured.
-	configured = err == nil
+	return err == nil
 }
 
-func rootHander(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "static/index.html")
-}
-
-func dumpConfig(w http.ResponseWriter, r *http.Request) {
-	buf := bytes.Buffer{}
-
-	enc := json.NewEncoder(&buf)
-	err := enc.Encode(config.Get())
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = buf.WriteTo(w)
-}
-
-func writeConfig() {
-	err := config.WriteToPath(configPath)
-	if err != nil {
-		log.Printf("failed to write config: %v", err)
-	}
-}
-
-func runChild(cmd string, args []string) int {
-	log.Printf("Running child process %v with args %v", cmd, args)
-
-	child := exec.Command(cmd, args...)
-
-	// Loop through the output of the child process
-	child.Stdout = os.Stdout
-	child.Stderr = os.Stderr
-	child.Stdin = os.Stdin
-
-	err := child.Run()
-
-	if err == nil {
-		return 0
-	}
-
-	log.Printf("Child process failed to exit cleanly: %v", err)
-	return 1
-}
-
+// The Main program
 func main() {
-	if configured {
-		ret := runChild(os.Args[1], os.Args[2:])
-		os.Exit(ret)
-	}
+	for true {
+		// if the configuration file is valid, start the program and exit with the right code
+		if isConfigured() {
+			utils.Logger.Printf("Configuration file at %s valid, starting program", configPath)
+			os.Exit(runChild())
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/gh", github.UpdateStateHandler)
-	mux.HandleFunc("/raw", savePlainConfigHandler)
-	mux.HandleFunc("/dump", dumpConfig)
-	mux.HandleFunc("/finalize", func(w http.ResponseWriter, r *http.Request) {
-		defer syscall.Exec(os.Args[0], os.Args, os.Environ())
-	})
-
-	staticFiles := http.FileServer(http.Dir("static"))
-	mux.Handle("/", http.StripPrefix("", staticFiles))
-
-	var stickyUser = auth.StickyUser{
-		Next: mux,
-	}
-
-	err := http.ListenAndServe(listenAddr, &stickyUser)
-	if err != nil {
-		log.Printf("http server error: %v", err)
+			// else run the setup
+		} else {
+			utils.Logger.Printf("Configuration file at %s invalid, starting setup", configPath)
+			setupServer()
+			utils.Logger.Printf("Setup terminated, re-starting")
+		}
 	}
 }
