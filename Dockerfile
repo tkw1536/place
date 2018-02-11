@@ -37,4 +37,4 @@ VOLUME /var/www/html
 VOLUME /data/
 ENV CONFIG_PATH=/data/config.json
 
-ENTRYPOINT ["/root/place-setup", "/root/place", "/data/config.json"]
+ENTRYPOINT ["/root/place-setup", "/root/place"]
