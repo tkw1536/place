@@ -1,151 +1,110 @@
 # place
 
-A lightweight docker image that allows you to place your static website on the internet and update it using Web Hooks.
+A lightweight docker image that allows you to place your static (or not-so-static) website on the internet and update it using Web Hooks.
 
 ** WORK IN PROGRESS DO NOT USE YET **
 
 ## TODO
 
-* TODO: Proper testing updates
 * TODO: More testing
+* TODO: Setup frontend
+* TODO: `GitSSHKeyPath` should be in-lineable
 
 ## TL;DR
 
 1. Create a repository, e.g. https://github.com/example/domain.tld
-2. Start this docker container: 
+2. Start this docker container with:
 
 ```
-docker run -p 80:80 -v /data -v /var/www/html -e GIT_URL=git@github.com:example/domain.tld.git -e GITHUB_SECRET=awesomesecret place/place 
+docker run -p 80:80 -v /data -v /var/www/html place/place 
 ```
 
-3. Add the generated ssh public key as a deploy key to your repository.
-4. Add a webhook, to receive push events under https://domain.tld/webhook. Think of a random secret to use, e.g. "awesomesecret"
-5. Done, your repository will now be magically updated
+3. Follow the instructions in the webserver
 
-## For debugging
+## How it works
 
-```
-docker run -p 80:80 -v /data -v /var/www/html -t -i -e GIT_URL=... -e DEBUG=1 place/place
-```
+This container consists of two main components:
 
-### bin/place
-The main place executable, which serves as the entry point for the container. It reads in all parsed parameters, generates an ssh key if it does not exist, and then delegates to `bin/place-server` (see below). 
+- The hook server, simply refered to as `place`
+- The setup server, found inside the `setup` folder, and called with `place-setup`
 
-```
-Usage: bin/place
-Arguments:
-    SSH_KEY_PATH
-        If set, enable support for ssh.
-        First, try to load the passwordless SSH Key at the given path. If it does not exist, generate a new one. 
-    
-    BIND_ADDRESS
-        Address to bind to (see `place-server --bind`)
+### The Hook Server
 
-    WEBHOOK_PATH
-        Path that should respond to webhooks, defaults to `/webook/` (see `place-server --webhook`)
+The hook server implements two behaviours: 
 
-    GIT_URL
-        Repository to clone (see `place-git-update --from`)
+1. It serves static content (or proxies to another server)
+2. It listens for webhooks under the `/webhook/` path
 
-    GIT_BRANCH
-        Branch of the Git Repository to clone
-    
-    GIT_CLONE_TIMEOUT
-        Timeout to give to webhook (see `place-server --timeout`)
-    
-    GITHUB_SECRET
-        If non-empty, listen to GitHub Webhooks with the given secret (see `place-server --github`)
-    
-    GITLAB_SECRET
-        If non-empty, listen to GitLab Webhooks with the given secret (see `place-server --gitlab`)
-    
-    DEBUG
-        If set to 1, listen to Debug Webhooks (see `place-server --debug`)
-    
-    STATIC_PATH
-        Path to place static content in
-    
-    BUILD_SCRIPT
-        If given, build script to inject into static process (see `place-git-update --build`)
+Whenever a valid web hook is received (currently only GitHub and GitLab hooks are supported), the hook server updates content from a remote (git) repository and places it into the folder served by the static web server. 
+The server is configured using various settings, see `The Configuration File` section below.  
 
-    PROXY_URL
-        When set proxy to the given url instead of servering static content (see `place-server --proxy`)
+### The Setup Server
 
-```
+The setup server runs as follows:
 
-Instead of calling `bin/place-server` as an external program, the code directly links into the binary code below. 
+1. Try to load the configuration file
+2. If that succeeds, start the hook server with this configuration file
+3. If that fails, start the setup server, wait for the user to finish setup, and go back to 1. 
 
-### bin/place-server
+As such, it needs three parameters:
 
-The web server that servers the static directory and listens to webhooks. 
+1. The path to the configuration file, given with the `CONFIG_PATH` variable, and defaulting to `config.json`
+2. The port to listen on, given with the `BIND_ADDRESS` variable, and defaulting to `0.0.0.0:80`
+3. The path to the `place` executable, given as a command-line parameter
 
-```
-Usage: bin/place-server \
-    --bind address --webhook path \
-    [--github token[,ref[,events...]]] [--gitlab token[,ref[,events...]]] [--debug] \
-    --script script [--timeout timeout] --static dir|--proxy url
+The first parameter (`CONFIG_PATH`) is set to `/data/config.json` in the Dockerfile. 
+Since a `/data/` is also declared as a Docker Volume, this means that the configuration file is stored persistently. 
+Furthermore, it allows to skip setup entirely by pre-seeding the file into the Volume manually. 
 
-    --bind address
-        The interface address and port the server should bind to.
-    --webhook path
-        The path that should respond to webhooks (e.g. /webhook/).
+The second parameter, `BIND_ADDRESS` is left unset, and thus assumes the default. 
+Port `80` is `EXPOSE`d in the Dockerfile, and thus it should not be neccessary to change this. 
+Nonetheless, the port can be changed by passing an appropriate environment variable to the docker container. 
 
-    --github token[,ref[,events...]]
-        Run the webhook whenever a GitHub web hook request is received.
-        token
-            The WebHook Token
-        ref
-            The Ref to run WebHooks on. Defaults to refs/heads/master.
-        events
-            Comma-seperated list of events to run WebHooks on.
-            Defaults to "Push".
-    --gitlab token[,branch[,events...]]
-        Run the webhook whenever a GitLab web hook request is received.
-        token
-            The WebHook Token
-        ref
-            The Ref to run WebHooks on. Defaults to refs/heads/master.
-        events
-            Comma-seperated list of events to run Webhook on.
-            Defaults to "Push Hook".
-    --debug
-        Run in debug mode and run the webhook whenever any POST request is received.
+The third parameter is hard-coded using inside the Dockerfile by giving an appropriate `ENTRYPOINT` parameter. 
+This should not need changing. 
 
-    --script script
-        Script to run whenever a webhook is received. 
-    --timeout timeout
-        Timeout for script in seconds. Defaults to 600.
 
-    --static dir
-        Serve static content from directory dir.
-    --proxy url
-        Instead of serving static content, proxy all requests to url
-```
+### The Configuration File
 
-### bin/place-git-update
+The configuration file is a simple JSON file, which can be used to configure the behaviour of the hook server. 
+It is defined in [config/config.go] and has the following configuration options:
 
-Executable that updates a directory with static content from a git repository.  
+* `BindAddress` The interface address and port the server should bind to.
+* `WebhookPath` A string path to server webhook under, defaults to `/webhook/`
+* `GitURL` Url to clone upstream repository from
+* `GitBranch` Branch to clone and set of events to listen to, defaults to `master`
+* `GitSSHKeyPath` Path to ssh key for git clone (if any)
+* `GitUsername` username for git clone (if any)
+* `GitPassword` password for git clone (if any)
+* `GitCloneTimeout` timeout for git clone in Nanoseconds, defaults to 10 minutes
+* `GitHubSecret` secret to use when listening to GitHub Events (if any)
+* `GitLabSecret` secret to use when listening to GitLab Events (if any)
+* `Debug` if set to `true`, trigger the webhook on any post request to webhook path (not recommended)
+* `StaticPath`
+    Path to place static content in, and to serve static content from. 
+* `ProxyURL`
+    If set, instead of serving static content, proxy all content this url. 
+    This can be used if you want to automaticallty update content via `place`, but are not serving a static website. 
+    This allows to e.g. serve PHP content via an external server. 
+    Note that no external servers are included in the docker image by default and you would have to add a custom one. 
 
-```
-Usage: bin/place-git-update --from url [--ssh-key path] --to path [--ref ref] [--build script]
+* `BuildScript`
+    By default, files will be placed from the source repository directly into the target
+    directory. By specifying the `BuildScript` parameter, the files can be pre-processed before
+    being injected into the target directory.
 
-    --from url
-        The url the remote repository is located at
-    --ssh-key path
-        If set, load a passwordless ssh key from the given path and use it to clone the repository. 
-    --to path
-        The (local) path the static files should be placed at
-    --ref ref
-        The ref the repository that should be checked out (e.g. refs/heads/master)
-    --build script
-        By default, files will be placed from the source repository directly into the target
-        directory. By specifying the `build` parameter, the files can be pre-processed before
-        being injected into the target directory.
+    The build script will be started inside a directory that contains a checkout of the repository
+    and will receive the target directory as an argument. The target directory will contain
+    the old (dirty) state of the working directory. Build scripts are run using the
+    current $SHELL environment variable (falling back to /bin/sh if unspecified).
 
-        The build script will be started inside a directory that contains a checkout of the repository
-        and will receive the target directory as an argument. The target directory will contain
-        the old (dirty) state of the working directory. Build scripts are run using the
-        current $SHELL environment variable (falling back to /bin/sh if unspecified).
+    Example value: "bundle install; bundle exec jekyll build -t"
 
-        Example value: "bundle install; bundle exec jekyll build -t"
-```
+## How about HTTPS and multiple host support?
+
+This minimal docker image is not intended to handle HTTPS and friends. 
+If you desire support for multiple hosts, and support https, you should consider using [jwilder/nginx-proxy](https://github.com/jwilder/nginx-proxy) in front of this docker image. 
+
+## License
+
+MIT

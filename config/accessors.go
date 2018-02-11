@@ -41,7 +41,7 @@ func (cfg Config) GitRef() string {
 func (cfg Config) GitCloneOptions() (*git.CloneOptions, error) {
 	var options git.CloneOptions
 
-	options.URL = cfg.GitURL.String()
+	options.URL = cfg.GitURL.Endpoint().String()
 	options.ReferenceName = plumbing.ReferenceName(cfg.GitRef())
 	options.SingleBranch = true
 	options.Depth = 1

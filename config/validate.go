@@ -32,12 +32,8 @@ func (cfg Config) Validate() error {
 		return err
 	}
 
-	if cfg.StaticPath != "" && cfg.ProxyURL != nil {
-		return fmt.Errorf("Both StaticPath and ProxyURL are set, you must one exactly one. ")
-	}
-
-	if cfg.StaticPath == "" && cfg.ProxyURL == nil {
-		return fmt.Errorf("Neither StaticPath and ProxyURL are set, you must one exactly one. ")
+	if cfg.StaticPath == "" {
+		return fmt.Errorf("StaticPath must be set. ")
 	}
 
 	if cfg.StaticPath != "" {

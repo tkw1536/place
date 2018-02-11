@@ -15,10 +15,10 @@ func StartServer(cfg *config.Config) error {
 	r := http.NewServeMux()
 	r.Handle(cfg.WebhookPath, NewHookHandler(cfg))
 
-	if cfg.StaticPath != "" {
+	if cfg.ProxyURL.URL().String() == "" {
 		r.Handle("/", http.FileServer(http.Dir(cfg.StaticPath)))
 	} else {
-		r.Handle("/", httputil.NewSingleHostReverseProxy(cfg.ProxyURL))
+		r.Handle("/", httputil.NewSingleHostReverseProxy(cfg.ProxyURL.URL()))
 	}
 
 	http.ListenAndServe(cfg.BindAddress, NewLoggingHandler(utils.Logger, r))

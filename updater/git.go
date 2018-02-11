@@ -28,7 +28,7 @@ func updateWithGit(ctx *context.Context, cfg *config.Config) error {
 		return err
 	}
 
-	utils.Logger.Printf("cloning %s into %s", cfg.GitURL.String(), tmpDir)
+	utils.Logger.Printf("cloning %s into %s", cfg.GitURL.Endpoint().String(), tmpDir)
 
 	// do a bare clone into it
 	r, err := git.PlainCloneContext(*ctx, tmpDir, true, opts)
