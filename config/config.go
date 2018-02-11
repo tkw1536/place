@@ -55,5 +55,5 @@ func (cfg Config) Inspect() {
 
 	utils.Logger.Printf("StaticPath:      %s\n", cfg.StaticPath)
 	utils.Logger.Printf("BuildScript:     %s\n", cfg.BuildScript)
-	utils.Logger.Printf("ProxyURL:        %s\n", cfg.ProxyURL)
+	utils.Logger.Printf("ProxyURL:        %s\n", cfg.ProxyURL.URL().String())
 }

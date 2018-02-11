@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -9,7 +11,32 @@ import (
 	"github.com/tkw1536/place/config"
 	"github.com/tkw1536/place/setup/auth"
 	"github.com/tkw1536/place/utils"
+	"github.com/tkw1536/place/utils/verify"
 )
+
+// jsonp writes a JSONP response to writer
+func jsonp(json string, w http.ResponseWriter, r *http.Request) {
+	callback := r.FormValue("callback")
+	// if we have a c
+	if callback != "" {
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		fmt.Fprintf(w, "%s(%s)", callback, json)
+	} else {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Write([]byte(json))
+	}
+}
+
+func toJSONString(success bool, fields []verify.FieldError, message string) string {
+	var fieldNames []string
+	for _, field := range fields {
+		fieldNames = append(fieldNames, field.Field())
+	}
+
+	fieldsBytes, _ := json.Marshal(fieldNames)
+	messageBytes, _ := json.Marshal(message)
+	return fmt.Sprintf("{\"success\": %t, \"fields\": %s, \"message\": %s}", success, string(fieldsBytes), string(messageBytes))
+}
 
 func validPlainConfigHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost && r.Method != http.MethodPut {
@@ -20,17 +47,17 @@ func validPlainConfigHandler(w http.ResponseWriter, r *http.Request) {
 	conf := config.Config{}
 	err := conf.Read(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		jsonp(toJSONString(false, []verify.FieldError{}, err.Error()), w, r)
 		return
 	}
 
-	err = conf.Validate()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	ferr := conf.Validate()
+	if ferr != nil {
+		jsonp(toJSONString(false, ferr.Messages(), ferr.Error()), w, r)
 		return
 	}
 
-	w.Write([]byte("Configuration valid"))
+	jsonp(toJSONString(true, []verify.FieldError{}, ""), w, r)
 }
 
 func savePlainConfigHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,22 +69,22 @@ func savePlainConfigHandler(w http.ResponseWriter, r *http.Request) {
 	conf := config.Config{}
 	err := conf.Read(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		jsonp(toJSONString(false, []verify.FieldError{}, err.Error()), w, r)
 		return
 	}
 
-	err = conf.Validate()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	ferr := conf.Validate()
+	if ferr != nil {
+		jsonp(toJSONString(false, ferr.Messages(), ferr.Error()), w, r)
 		return
 	}
 
-	err = conf.Save(configPath)
+	serr := conf.Save(configPath)
 
-	if err != nil {
+	if serr != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
-		w.Write([]byte("Config saved."))
+		jsonp(toJSONString(true, []verify.FieldError{}, "Configuration saved"), w, r)
 	}
 }
 

@@ -41,6 +41,15 @@ func (me *MarshalableEndpoint) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// IsEmpty checks if this endpoint has empty content
+func (me *MarshalableEndpoint) IsEmpty() bool {
+	if me == nil {
+		return true
+	}
+	ep := me.Endpoint()
+	return ep.Host == "" && ep.Path == "" && ep.Port == 0
+}
+
 // MarshalableURL represents a url.URL which can be marshaled and unmarshaled as a string
 type MarshalableURL url.URL
 

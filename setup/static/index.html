@@ -1,42 +1,197 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>place-setup-custom</title>
-    </head>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-    <body>
-        <div>
-            <h1>Enter your configuration: (for now)</h1>
-            <form>
-<textarea>
-{
-    "BindAddress": "0.0.0.0:80", 
-    "WebhookPath": "/webhook/", 
-    "GitURL": {
-        "Protocol": "http",
-        "User": "", 
-        "Password": "", 
-        "Host": "example.com",
-        "Port": 0,
-        "Path": "..."
-    }, 
-    "GitBranch": "master", 
-    "GitSSHKeyPath": "", 
-    "GitUsername": "", 
-    "GitPassword": "", 
-    "GitCloneTimeout": 600, 
-    "GitHubSecret": "", 
-    "GitLabSecret": "", 
-    "Debug": false, 
-    "StaticPath": ".", 
-    "ProxyURL": null, 
-    "BuildScript": ""
-}
-</textarea>
-    <input type="submit" value="Use">
-        </form>
+    <title>Place Setup</title>
 
-        <script type="text/javascript" src="/setup/js/jquery.js"></script>
-        <script type="text/javascript" src="/setup/js/custom.js"></script>
-    </body>
+    <link href="assets/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/custom.css" rel="stylesheet">
+  </head>
+
+  <body class="bg-light">
+
+    <div class="container" id="step1">
+      <div class="py-5 text-center">
+        <img class="d-block mx-auto mb-4" alt="" width="128" height="128">
+        <h2>Place Setup</h2>
+        <p class="lead">
+            Before being able to use <code>place</code>, you will need to configure it.
+            This can be done by either placing a configuration file or by using this website to generate it interactively.
+        </p>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-danger d-none" role="alert" id="message">
+                Loading ... please wait
+            </div>
+        </div>
+      </div>
+
+
+      <div class="row">
+        <div class="col-md-12">
+
+          <form class="needs-validation" id="form1">
+
+            <!-- Repo url -->
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label for="GitURL">Repository URL (<code>GitURL</code>)</label>
+                <input type="text" class="form-control" id="GitURL" placeholder="" value="">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="GitBranch">Repository Branch (<code>GitBranch</code>)</label>
+                <input type="text" class="form-control" id="GitBranch" placeholder="" value="master">
+              </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <code>place</code> supports cloning repositories via <code>ssh</code> and via <code>https</code>.
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Authentication -->
+            <div class="row">
+                <div class="col-md-8 mb-6">
+                    <label for="GitSSHKeyPath">SSH Private Key (<code>GitSSHKeyPath</code>)</label>
+                    <textarea class="form-control" id="GitSSHKeyPath" rows="5"></textarea>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="GitUsername">Username (<code>GitUsername</code>)</label>
+                    <input type="text" class="form-control" id="GitUsername" placeholder="" value="">
+                    <label for="GitPassword">Password (<code>GitPassword</code>)</label>
+                    <input type="password" class="form-control" id="GitPassword" placeholder="" value="">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    In case an <code>SSH Key</code> is needed, please enter a passwordless key on the left.
+                    In case of an <code>HTTPS</code> url, you can enter username / password combination on the right.
+                    If anonymous cloning is possible, you may leave all fields empty.
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Place settings -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="BindAddress">Bind Address (<code>BindAddress</code>)</label>
+                    <input type="text" class="form-control" id="BindAddress" placeholder="" value="0.0.0.0:80">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="ProxyURL">Proxy URL (<code>ProxyURL</code>)</label>
+                    <input type="text" class="form-control" id="ProxyURL" placeholder="" value="">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="WebhookPath">WebHook Path (<code>WebhookPath</code>)</label>
+                    <input type="text" class="form-control" id="WebhookPath" placeholder="" value="/webhook/">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    These advanced settings allow you to further customize the behaviour of place.
+                    It should usually not be neccessary to change these.
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Clone Settings -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="StaticPath">Local clone path (<code>StaticPath</code>)</label>
+                    <input type="text" class="form-control" id="StaticPath" placeholder="" value="/var/www/html" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="GitCloneTimeout">Timeout in Seconds (<code>Timeout</code>)</label>
+                    <input type="number" class="form-control" id="GitCloneTimeout" placeholder="" value="600" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="StaticPath">Build Script (<code>BuildScript</code>)</label>
+                    <input type="text" class="form-control" id="BuildScript" placeholder="" value="">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    This allows you to configure in which path the repository path is cloned into.
+                    If you are running from within a docker container, this should be a volume so it persists between restarts of the container.
+                    Furthermore, you set a timeout for the clone here.
+                    Additionally, a build script can be configured.
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Checker Settings -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="GitHubSecret">Token for GitHub Hook (<code>GitHubSecret</code>)</label>
+                    <input type="text" class="form-control" id="GitHubSecret" placeholder="">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="GitLabSecret">Token for GitLab Hook (<code>GitLabSecret</code>)</label>
+                    <input type="text" class="form-control" id="GitLabSecret" placeholder="">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="Debug">
+                            <label class="form-check-label" for="Debug">
+                                Enable Debug Hook (<code>Debug</code>)
+                            </label>
+                        </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    In this section you can configure different <code>Web Hook</code> types for place.
+                    Three different kinds are suppored: One for GitHub, one for GitLab and a debug one.
+                </div>
+            </div>
+
+            <hr class="mb-4">
+            <button class="btn btn-primary btn-lg btn-block" type="submit">Save</button>
+          </form>
+        </div>
+      </div>
+
+      <footer class="my-5 pt-5 text-muted text-center text-small">
+        <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://github.com/tkw1536/place" target="_blank">Source Code</a></li>
+        </ul>
+      </footer>
+    </div>
+
+    <div class="container d-none" id="step2">
+        <h1>Setup completed. </h1>
+        <p>
+            <form id="form2">
+              <button class="btn btn-primary btn-lg btn-block" type="submit">Restart service</button>
+            </form>
+        </p>
+    </div>
+
+    <script data-main="assets/js/main" src="assets/lib/requirejs/require.min.js"></script>
+  </body>
 </html>

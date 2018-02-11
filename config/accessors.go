@@ -34,7 +34,7 @@ func (cfg Config) Checkers() []checkers.Checker {
 
 // GitRef returns the ref pointed to by this Configuration
 func (cfg Config) GitRef() string {
-	return "refs/head/" + cfg.GitBranch
+	return "refs/heads/" + cfg.GitBranch
 }
 
 // GitCloneOptions generates options for use with git clone
